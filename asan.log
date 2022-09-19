@@ -1,0 +1,85 @@
+=================================================================
+==50197==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x60200034717e at pc 0x000005b99fca bp 0x7f6ce4826e70 sp 0x7f6ce4826640
+WRITE of size 65361 at 0x60200034717e thread T2 (HTTPHandler)
+2022.08.15 18:03:59.000239 [ 50248 ] {} <Trace> AsynchronousMetrics: MemoryTracking: was 650.70 MiB, peak 650.70 MiB, will set to 660.74 MiB (RSS), difference: 10.04 MiB
+    #0 0x5b99fc9 in __asan_memcpy (/build2/programs/clickhouse+0x5b99fc9) (BuildId: d67a7b91f662e19ae2526439d3bde3ef1d37e0d0)
+    #1 0x5ec6f3d in DB::ReadBuffer::read(char*, unsigned long) /build2/./src/IO/ReadBuffer.h:178:13
+    #2 0x5ec6f3d in DB::ReadBuffer::readStrict(char*, unsigned long) /build2/./src/IO/ReadBuffer.h:189:27
+    #3 0x31c11eee in DB::HTTPChunkedReadBuffer::nextImpl() /build2/./src/IO/HTTPChunkedReadBuffer.cpp:78:13
+    #4 0x2af27372 in DB::ReadBuffer::next() /build2/./src/IO/ReadBuffer.h:64:20
+    #5 0x2af27372 in DB::ReadBuffer::eof() /build2/./src/IO/ReadBuffer.h:98:38
+    #6 0x2af27372 in DB::HTTPHandler::trySendExceptionToClient(std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > const&, int, DB::HTTPServerRequest&, DB::HTTPServerResponse&, DB::HTTPHandler::Output&) /build2/./src/Server/HTTPHandler.cpp:867:33
+    #7 0x2af2c059 in DB::HTTPHandler::handleRequest(DB::HTTPServerRequest&, DB::HTTPServerResponse&) /build2/./src/Server/HTTPHandler.cpp:1001:9
+    #8 0x2af892ef in DB::HTTPServerConnection::run() /build2/./src/Server/HTTP/HTTPServerConnection.cpp:65:34
+    #9 0x31e93c2e in Poco::Net::TCPServerConnection::start() /build2/./contrib/poco/Net/src/TCPServerConnection.cpp:43:3
+    #10 0x31e94972 in Poco::Net::TCPServerDispatcher::run() /build2/./contrib/poco/Net/src/TCPServerDispatcher.cpp:115:20
+    #11 0x3235723b in Poco::PooledThread::run() /build2/./contrib/poco/Foundation/src/ThreadPool.cpp:199:14
+    #12 0x32350af9 in Poco::ThreadImpl::runnableEntry(void*) /build2/./contrib/poco/Foundation/src/Thread_POSIX.cpp:345:27
+    #13 0x7f6dedac0608 in start_thread /build/glibc-SzIz7B/glibc-2.31/nptl/pthread_create.c:477:8
+    #14 0x7f6ded9e5132 in __clone /build/glibc-SzIz7B/glibc-2.31/misc/../sysdeps/unix/sysv/linux/x86_64/clone.S:95
+
+0x60200034717e is located 0 bytes to the right of 14-byte region [0x602000347170,0x60200034717e)
+allocated by thread T2 (HTTPHandler) here:
+    #0 0x5b9b016 in __interceptor_realloc (/build2/programs/clickhouse+0x5b9b016) (BuildId: d67a7b91f662e19ae2526439d3bde3ef1d37e0d0)
+    #1 0x319bf41f in Allocator<false, false>::realloc(void*, unsigned long, unsigned long, unsigned long) /build2/./src/Common/Allocator.h:134:30
+    #2 0x31c11e68 in DB::Memory<Allocator<false, false> >::resize(unsigned long) /build2/./src/IO/BufferWithOwnMemory.h:96:53
+    #3 0x31c11e68 in DB::HTTPChunkedReadBuffer::nextImpl() /build2/./src/IO/HTTPChunkedReadBuffer.cpp:77:16
+    #4 0x2af27372 in DB::ReadBuffer::next() /build2/./src/IO/ReadBuffer.h:64:20
+    #5 0x2af27372 in DB::ReadBuffer::eof() /build2/./src/IO/ReadBuffer.h:98:38
+    #6 0x2af27372 in DB::HTTPHandler::trySendExceptionToClient(std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > const&, int, DB::HTTPServerRequest&, DB::HTTPServerResponse&, DB::HTTPHandler::Output&) /build2/./src/Server/HTTPHandler.cpp:867:33
+    #7 0x2af2c059 in DB::HTTPHandler::handleRequest(DB::HTTPServerRequest&, DB::HTTPServerResponse&) /build2/./src/Server/HTTPHandler.cpp:1001:9
+    #8 0x2af892ef in DB::HTTPServerConnection::run() /build2/./src/Server/HTTP/HTTPServerConnection.cpp:65:34
+    #9 0x31e93c2e in Poco::Net::TCPServerConnection::start() /build2/./contrib/poco/Net/src/TCPServerConnection.cpp:43:3
+    #10 0x31e94972 in Poco::Net::TCPServerDispatcher::run() /build2/./contrib/poco/Net/src/TCPServerDispatcher.cpp:115:20
+    #11 0x3235723b in Poco::PooledThread::run() /build2/./contrib/poco/Foundation/src/ThreadPool.cpp:199:14
+    #12 0x32350af9 in Poco::ThreadImpl::runnableEntry(void*) /build2/./contrib/poco/Foundation/src/Thread_POSIX.cpp:345:27
+    #13 0x7f6dedac0608 in start_thread /build/glibc-SzIz7B/glibc-2.31/nptl/pthread_create.c:477:8
+
+Thread T2 (HTTPHandler) created by T0 here:
+    #0 0x5b840fc in __interceptor_pthread_create (/build2/programs/clickhouse+0x5b840fc) (BuildId: d67a7b91f662e19ae2526439d3bde3ef1d37e0d0)
+    #1 0x3234fd45 in Poco::ThreadImpl::startImpl(Poco::SharedPtr<Poco::Runnable, Poco::ReferenceCounter, Poco::ReleasePolicy<Poco::Runnable> >) /build2/./contrib/poco/Foundation/src/Thread_POSIX.cpp:202:6
+    #2 0x32352efd in Poco::Thread::start(Poco::Runnable&) /build2/./contrib/poco/Foundation/src/Thread.cpp:128:2
+    #3 0x32357c29 in Poco::PooledThread::start() /build2/./contrib/poco/Foundation/src/ThreadPool.cpp:85:10
+    #4 0x32357c29 in Poco::ThreadPool::ThreadPool(int, int, int, int) /build2/./contrib/poco/Foundation/src/ThreadPool.cpp:252:12
+    #5 0x5bf0225 in DB::Server::main(std::__1::vector<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> >, std::__1::allocator<std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char> > > > const&) /build2/./programs/server/Server.cpp:704:22
+    #6 0x31ece187 in Poco::Util::Application::run() /build2/./contrib/poco/Util/src/Application.cpp:334:8
+    #7 0x5be5bbe in DB::Server::run() /build2/./programs/server/Server.cpp:473:25
+    #8 0x31f0bfc7 in Poco::Util::ServerApplication::run(int, char**) /build2/./contrib/poco/Util/src/ServerApplication.cpp:611:9
+    #9 0x5bdeaed in mainEntryClickHouseServer(int, char**) /build2/./programs/server/Server.cpp:187:20
+    #10 0x5bd957f in main /build2/./programs/main.cpp:449:12
+    #11 0x7f6ded8ea082 in __libc_start_main /build/glibc-SzIz7B/glibc-2.31/csu/../csu/libc-start.c:308:16
+
+SUMMARY: AddressSanitizer: heap-buffer-overflow (/build2/programs/clickhouse+0x5b99fc9) (BuildId: d67a7b91f662e19ae2526439d3bde3ef1d37e0d0) in __asan_memcpy
+Shadow bytes around the buggy address:
+  0x0c0480060dd0: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x0c0480060de0: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x0c0480060df0: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x0c0480060e00: fa fa fd fd fa fa fd fd fa fa fd fd fa fa fd fd
+  0x0c0480060e10: fa fa fd fd fa fa fd fd fa fa fd fd fa fa fd fd
+=>0x0c0480060e20: fa fa 00 00 fa fa fd fd fa fa fd fd fa fa 00[06]
+  0x0c0480060e30: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x0c0480060e40: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x0c0480060e50: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x0c0480060e60: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+  0x0c0480060e70: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07 
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+==50197==ABORTING
+
